@@ -1,0 +1,14 @@
+html{
+    height: 100%;
+}
+
+body{
+    display: flex;
+    flex-direction: column;
+
+    height: 100%;
+}
+
+.footer{
+    background-color: #edede9;
+}

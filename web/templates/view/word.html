@@ -1,0 +1,453 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container text-center my-3">
+    <h1 class="display-1 fw-bold text-capitalize text-body-tertiary">Dictionary</h1>
+</div>
+
+
+<!-- KONKANI WORD INFO -->
+<div class="container my-5 pt-5">
+
+    <div class="container text-center mb-4">
+        <h6 class="text-uppercase text-body-tertiary">Word Information</h6>
+    </div>
+
+    <!-- DISPLAY IMAGE -->
+    <div class="text-center mb-2 img-src">
+        <img src="{{ word_data.img_url }}" width="200" class="rounded" alt="word-img">
+        <p class="fw-lighter text-body-tertiary small-font">hf-model</p>
+    </div>
+
+    <table class="table table-bordered shadow-sm mx-auto" style="max-width: 800px;">
+        <tbody>
+            <tr>
+                <th class="text-center text-body-tertiary py-3">Word:</th>
+                <th class="py-3">
+                    {{ word_data.word }}
+                </th>
+            </tr>
+            <tr>
+                <th class="text-center text-body-tertiary py-3">Category:</th>
+                <td class="py-3">
+                    {{ word_data.category.category_value }}
+                </td>
+            </tr>
+            <tr>
+                <th class="text-center text-body-tertiary py-3">Glossary:</th>
+                <td class="py-3">
+                    {{ word_data.concept_definition }}
+                </td>
+            </tr>
+            <tr>
+                <th class="text-center text-body-tertiary py-3">Usage:</th>
+                <td class="py-3">
+                    {{ word_data.example }}
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+
+<!-- BREAK SPACE -->
+<div class="my-5 py-5"></div>
+
+
+<!-- SYNONYMS FOR THE WORD -->
+<div class="container my-5 pt-5">
+
+    <div class="container text-center mb-4">
+        <h6 class="text-uppercase text-body-tertiary">SYNONYMS</h6>
+    </div>
+
+    <table class="table table-bordered shadow-sm mx-auto" style="max-width: 800px;">
+        <tbody>
+            <tr>
+                <th class="text-center text-body-tertiary py-3">Synonym ID</th>
+                <th class="text-center text-body-tertiary py-3">Synonym</th>
+                <th class="text-center text-body-tertiary py-3">Glossary</th>
+            </tr>
+
+            {% for synom in synonyms %}
+            <tr>
+                <td class="text-center text-body-tertiary py-3">{{ synom.id }}</td>
+                <th class="text-center py-3">
+                    <a href="{{ url_for('routes.get_word', word_id=synom.id, synset_id=synom.sid) }}"
+                        class="link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover">
+                        {{ synom.word }}
+                    </a>
+                </th>
+                <td class="py-3">{{ synom.concept }}</td>
+            </tr>
+            {% endfor %}
+
+        </tbody>
+    </table>
+</div>
+
+
+<!-- BREAK SPACE -->
+<div class="my-5 py-5"></div>
+
+
+<!-- SEMANTIC RELATIONS FOR THE WORD -->
+<div class="container my-5">
+
+    <div class="container text-center mb-4">
+        <h6 class="text-uppercase text-body-tertiary">Semantic Relations</h6>
+    </div>
+
+    <!-- NAV TAB TO SELECT RELATION TYPE -->
+    <nav class="mx-auto" style="max-width: fit-content">
+        <div class="nav nav-underline mb-2" id="nav-tab" role="tablist">
+
+            <button class="nav-link active" id="nav-hyper-tab" data-bs-toggle="tab" data-bs-target="#nav-hyper"
+                type="button" role="tab" aria-controls="nav-hyper" aria-selected="true">
+                Hypernymy
+            </button>
+
+            <button class="nav-link" id="nav-hypo-tab" data-bs-toggle="tab" data-bs-target="#nav-hypo" type="button"
+                role="tab" aria-controls="nav-hindi" aria-selected="false">
+                Hyponymy
+            </button>
+
+            <button class="nav-link" id="nav-holo-tab" data-bs-toggle="tab" data-bs-target="#nav-holo" type="button"
+                role="tab" aria-controls="nav-holo" aria-selected="false">
+                Holonymy
+            </button>
+
+            <button class="nav-link" id="nav-mero-tab" data-bs-toggle="tab" data-bs-target="#nav-mero" type="button"
+                role="tab" aria-controls="nav-mero" aria-selected="false">
+                Meronymy
+            </button>
+        </div>
+    </nav>
+
+    <div class="tab-content" id="nav-tabContent">
+        <!-- HYPERNYMY DATA -->
+        <div class="tab-pane fade show active" id="nav-hyper" role="tabpanel" aria-labelledby="nav-hyper-tab"
+            tabindex="0">
+            <table class="table table-bordered shadow-sm mx-auto" style="max-width: 800px;">
+                <tbody>
+                    <tr>
+                        <th class="text-center text-body-tertiary py-3">Hypernymy ID</th>
+                        <th class="text-center text-body-tertiary py-3">Synonym</th>
+                        <th class="text-center text-body-tertiary py-3">Concept</th>
+                        <th class="text-center text-body-tertiary py-3">Example</th>
+                    </tr>
+                    
+                    {% for data in relations %}
+                    {% if data.hyper %}
+                    {% for item in data.hyper %}
+                    <tr>
+
+                        <td class="py-3">
+                            {{ item.synset_id }}
+                        </td>
+
+                        <td class="py-3">
+                            {% for s in data.hyper_syn %}
+                                {{ s.word }}<br>
+                            {% endfor %}
+                        </td>
+
+                        <td class="py-3">
+                            {{ item.concept_definition }}
+                        </td>
+
+                        
+                        <td class="py-3">
+                            {% for e in data.hyper_exm %}
+                            {% if e.synset_id == item.synset_id %}
+                                {{ e.example_content }} <br><br>
+                            {% endif %}
+                            {% endfor %}
+                        </td>
+                        
+                    </tr>
+                    {% endfor %}
+                    {% else %}
+                    <tr>
+                        <td colspan="4" class="text-center fw-semibold text-danger">No Data Found!</td>
+                    </tr>
+                    {% endif %}
+                    {% endfor %}
+
+                </tbody>
+            </table>
+        </div>
+
+        <!-- HYPONYMY DATA -->
+        <div class="tab-pane fade show" id="nav-hypo" role="tabpanel" aria-labelledby="nav-hypo-tab" tabindex="0">
+            <table class="table table-bordered shadow-sm mx-auto" style="max-width: 800px;">
+                <tbody>
+                    <tr>
+                        <th class="text-center text-body-tertiary py-3">Hyponymy ID</th>
+                        <th class="text-center text-body-tertiary py-3">Synonym</th>
+                        <th class="text-center text-body-tertiary py-3">Concept</th>
+                        <th class="text-center text-body-tertiary py-3">Example</th
+                    </tr>
+                    
+                    {% for data in relations %}
+                    {% if data.hypo %}
+                    {% for item in data.hypo %}
+                    <tr>
+
+                        <td class="py-3">
+                            {{ item.synset_id }}
+                        </td>
+
+                        <td class="py-3">
+                            
+                        </td>
+
+                        <td class="py-3">
+                            {{ item.concept_definition }}
+                        </td>
+
+                        
+                        <td class="py-3">
+                            {% for e in data.hypo_exm %}
+                            {% if e.synset_id == item.synset_id %}
+                                {{ e.example_content }} <br><br>
+                            {% endif %}
+                            {% endfor %}
+                        </td>
+                        
+                    </tr>
+                    {% endfor %}
+                    {% else %}
+                    <tr>
+                        <td colspan="4" class="text-center fw-semibold text-danger">No Data Found!</td>
+                    </tr>
+                    {% endif %}
+                    {% endfor %}
+
+                </tbody>
+            </table>
+        </div>
+
+        <!-- HOLONYMY DATA -->
+        <div class="tab-pane fade show" id="nav-holo" role="tabpanel" aria-labelledby="nav-holo-tab" tabindex="0">
+            <table class="table table-bordered shadow-sm mx-auto" style="max-width: 800px;">
+                <tbody>
+                    <tr>
+                        <th class="text-center text-body-tertiary py-3">Holonymy ID</th>
+                        <th class="text-center text-body-tertiary py-3">Synonym</th>
+                        <th class="text-center text-body-tertiary py-3">Concept</th>
+                        <th class="text-center text-body-tertiary py-3">Example</th>
+                    </tr>
+                    
+                    {% for data in relations %}
+                    {% if data.holo %}
+                    {% for item in data.holo %}
+                    <tr>
+
+                        <td class="py-3">
+                            {{ item.synset_id }}
+                        </td>
+
+                        <td class="py-3">
+                            
+                        </td>
+
+                        <td class="py-3">
+                            {{ item.concept_definition }}
+                        </td>
+
+                        
+                        <td class="py-3">
+                            {% for e in data.holo_exm %}
+                            {% if e.synset_id == item.synset_id %}
+                                {{ e.example_content }} <br><br>
+                            {% endif %}
+                            {% endfor %}
+                        </td>
+                        
+                    </tr>
+                    {% endfor %}
+                    {% else %}
+                    <tr>
+                        <td colspan="4" class="text-center fw-semibold text-danger">No Data Found!</td>
+                    </tr>
+                    {% endif %}
+                    {% endfor %}
+
+                </tbody>
+            </table>
+        </div>
+
+        <!-- MERONYMY DATA -->
+        <div class="tab-pane fade show" id="nav-mero" role="tabpanel" aria-labelledby="nav-mero-tab" tabindex="0">
+            <table class="table table-bordered shadow-sm mx-auto" style="max-width: 800px;">
+                <tbody>
+                    <tr>
+                        <th class="text-center text-body-tertiary py-3">Meronymy ID</th>
+                        <th class="text-center text-body-tertiary py-3">Synonym</th>
+                        <th class="text-center text-body-tertiary py-3">Concept</th>
+                        <th class="text-center text-body-tertiary py-3">Example</th>
+                    </tr>
+                    
+                    {% for data in relations %}
+                    {% if data.mero %}
+                    {% for item in data.mero %}
+                    <tr>
+
+                        <td class="py-3">
+                            {{ item.synset_id }}
+                        </td>
+
+                        <td class="py-3">
+                            
+                        </td>
+
+                        <td class="py-3">
+                            {{ item.concept_definition }}
+                        </td>
+
+                        
+                        <td class="py-3">
+                            {% for e in data.mero_exm %}
+                            {% if e.synset_id == item.synset_id %}
+                                {{ e.example_content }} <br><br>
+                            {% endif %}
+                            {% endfor %}
+                        </td>
+                        
+                    </tr>
+                    {% endfor %}
+                    {% else %}
+                    <tr>
+                        <td colspan="4" class="text-center fw-semibold text-danger">No Data Found!</td>
+                    </tr>
+                    {% endif %}
+                    {% endfor %}
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- BREAK SPACE -->
+<div class="my-5 py-5"></div>
+
+
+<!-- TRANSLATE KONKANI WORD DATA -->
+<div class="container my-5">
+
+    <div class="container text-center mb-4">
+        <h6 class="text-uppercase text-body-tertiary">Other Languages</h6>
+    </div>
+
+    <!-- NAV TAB TO SELECT LANGUAGE TRANSLATION -->
+    <nav class="mx-auto" style="max-width: fit-content">
+        <div class="nav nav-underline mb-2" id="nav-tab" role="tablist">
+
+            <button class="nav-link active" id="nav-english-tab" data-bs-toggle="tab" data-bs-target="#nav-english"
+                type="button" role="tab" aria-controls="nav-english" aria-selected="true">
+                English
+            </button>
+
+            <button class="nav-link" id="nav-hindi-tab" data-bs-toggle="tab" data-bs-target="#nav-hindi" type="button"
+                role="tab" aria-controls="nav-hindi" aria-selected="false">
+                Hindi
+            </button>
+
+            <button class="nav-link" id="nav-marathi-tab" data-bs-toggle="tab" data-bs-target="#nav-marathi"
+                type="button" role="tab" aria-controls="nav-marathi" aria-selected="false">
+                Marathi
+            </button>
+        </div>
+    </nav>
+
+    <div class="tab-content" id="nav-tabContent">
+        <!-- ENGLISH DATA -->
+        <div class="tab-pane fade show active" id="nav-english" role="tabpanel" aria-labelledby="nav-english-tab"
+            tabindex="0">
+            <table class="table table-bordered shadow-sm mx-auto" style="max-width: 800px;">
+                <tbody>
+                    <tr>
+                        <th class="text-center text-body-tertiary py-3">Word:</th>
+                        <th class="text-capitalize py-3">
+                            {{ eng_data.eng_word }}
+                        </th>
+                    </tr>
+                    <tr>
+                        <th class="text-center text-body-tertiary py-3">Glossary:</th>
+                        <td class="py-3">
+                            {{ eng_data.gloss }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="text-center text-body-tertiary py-3">Usage:</th>
+                        <td class="py-3">
+                            {{ eng_data.usage.replace("|", "") }}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- HINDI DATA -->
+        <div class="tab-pane fade show" id="nav-hindi" role="tabpanel" aria-labelledby="nav-hindi-tab" tabindex="0">
+            <table class="table table-bordered shadow-sm mx-auto" style="max-width: 800px;">
+                <tbody>
+                    <tr>
+                        <th class="text-center text-body-tertiary py-3">Word:</th>
+                        <th class="text-capitalize py-3">
+                            {{ hindi_data.hindi_word }}
+                        </th>
+                    </tr>
+                    <tr>
+                        <th class="text-center text-body-tertiary py-3">Glossary:</th>
+                        <td class="py-3">
+                            {{ hindi_data.gloss }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="text-center text-body-tertiary py-3">Usage:</th>
+                        <td class="py-3">
+                            {{ hindi_data.usage.replace("|", "") }}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- MARATHI DATA -->
+        <div class="tab-pane fade show" id="nav-marathi" role="tabpanel" aria-labelledby="nav-marathi-tab" tabindex="0">
+            <table class="table table-bordered shadow-sm mx-auto" style="max-width: 800px;">
+                <tbody>
+                    <tr>
+                        <th class="text-center text-body-tertiary py-3">Word:</th>
+                        <th class="text-capitalize py-3">
+                            {{ marathi_data.marathi_word }}
+                        </th>
+                    </tr>
+                    <tr>
+                        <th class="text-center text-body-tertiary py-3">Glossary:</th>
+                        <td class="py-3">
+                            {{ marathi_data.gloss }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="text-center text-body-tertiary py-3">Usage:</th>
+                        <td class="py-3">
+                            {{ marathi_data.usage.replace("|", "") }}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+<!-- BREAK SPACE -->
+<div class="my-5 py-5"></div>
+
+
+{% endblock %}

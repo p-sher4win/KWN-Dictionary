@@ -1,0 +1,39 @@
+
+
+{{ synset }}
+<br><br><br>
+
+{% for rel in relation %}
+{{ rel }} <br>
+{% endfor %}
+<br><br>
+
+{% for i in semantic %}
+{{ i.rel_description }} <br>
+{% endfor %}
+<br><br><br>
+
+HYPER <br>
+{% for i in hyper %}
+{{ i }} <br>
+{% endfor %}
+<br><br><br>
+
+HYPO <br>
+{% for i in hypo %}
+{{ i }} <br>
+{% endfor %}
+<br><br><br>
+
+HOLO <br>
+{% for i in holo %}
+{{ i }} <br>
+{% endfor %}
+<br><br><br>
+
+MERO <br>
+{% for i in mero %}
+{{ i }} <br>
+{% endfor %}
+
+<!-- <img src="{{ word_data.img_url }}" width="200" class="rounded" alt="word-img"> -->

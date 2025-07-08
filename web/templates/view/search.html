@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container text-center my-3">
+    <h1 class="display-1 fw-bold text-capitalize text-body-tertiary">Search</h1>
+</div>
+
+<!-- SEARCH PANEL -->
+<div class="container my-5">
+
+    <form action="{{ url_for('routes.search') }}" method="POST" class="d-flex mb-3">
+        {{ form.hidden_tag() }}
+        <div class="me-auto w-100">
+            <input type="text" id="devanagari_input" class="form-control" placeholder="Search a word" name="search_for">
+        </div>
+        <button class="btn btn-success px-4 ms-2" type="submit"><i class="bi bi-search"></i></button>
+    </form>
+    <div class="text-center">
+        <button class="btn btn-sm btn-secondary px-4 mb-2" onclick="toggleKeyboard()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor"
+                class="bi bi-keyboard me-1 mb-1" viewBox="0 0 16 16">
+                <path
+                    d="M14 5a1 1 0 0 1 1 1v5a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1zM2 4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z" />
+                <path
+                    d="M13 10.25a.25.25 0 0 1 .25-.25h.5a.25.25 0 0 1 .25.25v.5a.25.25 0 0 1-.25.25h-.5a.25.25 0 0 1-.25-.25zm0-2a.25.25 0 0 1 .25-.25h.5a.25.25 0 0 1 .25.25v.5a.25.25 0 0 1-.25.25h-.5a.25.25 0 0 1-.25-.25zm-5 0A.25.25 0 0 1 8.25 8h.5a.25.25 0 0 1 .25.25v.5a.25.25 0 0 1-.25.25h-.5A.25.25 0 0 1 8 8.75zm2 0a.25.25 0 0 1 .25-.25h1.5a.25.25 0 0 1 .25.25v.5a.25.25 0 0 1-.25.25h-1.5a.25.25 0 0 1-.25-.25zm1 2a.25.25 0 0 1 .25-.25h.5a.25.25 0 0 1 .25.25v.5a.25.25 0 0 1-.25.25h-.5a.25.25 0 0 1-.25-.25zm-5-2A.25.25 0 0 1 6.25 8h.5a.25.25 0 0 1 .25.25v.5a.25.25 0 0 1-.25.25h-.5A.25.25 0 0 1 6 8.75zm-2 0A.25.25 0 0 1 4.25 8h.5a.25.25 0 0 1 .25.25v.5a.25.25 0 0 1-.25.25h-.5A.25.25 0 0 1 4 8.75zm-2 0A.25.25 0 0 1 2.25 8h.5a.25.25 0 0 1 .25.25v.5a.25.25 0 0 1-.25.25h-.5A.25.25 0 0 1 2 8.75zm11-2a.25.25 0 0 1 .25-.25h.5a.25.25 0 0 1 .25.25v.5a.25.25 0 0 1-.25.25h-.5a.25.25 0 0 1-.25-.25zm-2 0a.25.25 0 0 1 .25-.25h.5a.25.25 0 0 1 .25.25v.5a.25.25 0 0 1-.25.25h-.5a.25.25 0 0 1-.25-.25zm-2 0A.25.25 0 0 1 9.25 6h.5a.25.25 0 0 1 .25.25v.5a.25.25 0 0 1-.25.25h-.5A.25.25 0 0 1 9 6.75zm-2 0A.25.25 0 0 1 7.25 6h.5a.25.25 0 0 1 .25.25v.5a.25.25 0 0 1-.25.25h-.5A.25.25 0 0 1 7 6.75zm-2 0A.25.25 0 0 1 5.25 6h.5a.25.25 0 0 1 .25.25v.5a.25.25 0 0 1-.25.25h-.5A.25.25 0 0 1 5 6.75zm-3 0A.25.25 0 0 1 2.25 6h1.5a.25.25 0 0 1 .25.25v.5a.25.25 0 0 1-.25.25h-1.5A.25.25 0 0 1 2 6.75zm0 4a.25.25 0 0 1 .25-.25h.5a.25.25 0 0 1 .25.25v.5a.25.25 0 0 1-.25.25h-.5a.25.25 0 0 1-.25-.25zm2 0a.25.25 0 0 1 .25-.25h5.5a.25.25 0 0 1 .25.25v.5a.25.25 0 0 1-.25.25h-5.5a.25.25 0 0 1-.25-.25z" />
+            </svg>
+            Devanagri Keyboard
+        </button>
+        <div class="d-flex justify-content-center">
+            <div id="keyboard" class="simple-keyboard"></div>
+        </div>
+    </div>
+</div>
+
+
+<!-- BREAK SPACE -->
+<div class="my-1 py-1"></div>
+
+<!-- WORD OF THE DAY PANEL -->
+<div class="container mb-5">
+
+    <div class="row">
+
+        <!-- HEADING & TITLE SECTION -->
+        <div class="col-12 mb-4 text-center">
+            <h6 class="d-inline-block text-primary-emphasis text-capitalize text-decoration-underline">Explore <span
+                    class="text-lowercase">a</span> Word</h6>
+        </div>
+        <div class="col-12 text-center">
+            <h3 class="fw-bold text-uppercase">{{ word_info.word }}</h3>
+        </div>
+
+        <!-- WORD INFO DATA SECTION -->
+        <div class="col-12 mx-auto">
+            <div class="d-flex flex-column">
+
+                <!-- DISPLAY IMAGE -->
+                <div class="text-center mb-2 img-src">
+                    <img src="{{ word_info.img_url }}" width="200" class="rounded" alt="word-img">
+                    <p class="fw-lighter text-body-tertiary small-font">hf-model</p>
+                </div>
+
+                <div class="my-2">
+
+                    <table class="table table-bordered shadow-sm mx-auto" style="max-width: 800px;">
+                        <tbody>
+                            <tr>
+                                <th class="text-center text-body-tertiary py-3">Category:</th>
+                                <td class="py-3">
+                                    {{ word_info.category.category_value }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="text-center text-body-tertiary py-3">Glossary:</th>
+                                <td class="py-3">
+                                    {{ word_info.concept_definition }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="text-center text-body-tertiary py-3">Usage:</th>
+                                <td class="py-3">
+                                    {{ word_info.example }}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="text-center">
+                <a href="{{ url_for('routes.get_word', word_id=word_info.word_id, synset_id=word_info.synset_id) }}"
+                    class="icon-link gap-1 icon-link-hover link-underline link-underline-opacity-0">
+                    Read more
+                    <i class="bi bi-chevron-right mb-1"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- BREAK SPACE -->
+<div class="my-3 py-3"></div>
+
+{% endblock %}

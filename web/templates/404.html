@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<!-- BREAK SPACE -->
+<div class="my-3 py-3"></div>
+
+<div class="d-flex flex-column align-items-center my-5 py-5">
+    <div>
+        <h1 class="text-capitalize display-1" style="color:#6c584c;">Oops!</h1>
+    </div>
+
+    <div>
+        <h1 class="display-1 fw-bold" style="color: #a98467;">404</h1>
+    </div>
+
+    <div>
+        <h1 class="display-1 text-capitalize" style="color:#6c584c;">Page Not Found</h1>
+    </div>
+
+    <div class="text-center">
+        <p class="mx-5 text-body-tertiary">The page you are looking for was Moved, Removed or never Existed.</p>
+    </div>
+
+    <div>
+        <a href="{{ url_for('routes.home') }}" class="btn btn-secondary text-lowercase">to home</a>
+    </div>
+</div>
+
+{% endblock %}

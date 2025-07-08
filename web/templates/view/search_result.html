@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container text-center my-3">
+    <h1 class="display-1 fw-bold text-capitalize text-body-tertiary">Search Results</h1>
+</div>
+
+<!-- SEARCH PANEL -->
+<div class="container my-5">
+
+    <form action="{{ url_for('routes.search') }}" method="POST" class="d-flex mb-3">
+        {{ form.hidden_tag() }}
+        <div class="me-auto w-100">
+            <input type="text" id="devanagari_input" class="form-control" placeholder="Search a word" name="search_for">
+        </div>
+        <button class="btn btn-success px-4 ms-2" type="submit"><i class="bi bi-search"></i></button>
+    </form>
+    <div class="text-center">
+        <button class="btn btn-sm btn-secondary px-4 mb-2" onclick="toggleKeyboard()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor"
+                class="bi bi-keyboard me-1 mb-1" viewBox="0 0 16 16">
+                <path
+                    d="M14 5a1 1 0 0 1 1 1v5a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1zM2 4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z" />
+                <path
+                    d="M13 10.25a.25.25 0 0 1 .25-.25h.5a.25.25 0 0 1 .25.25v.5a.25.25 0 0 1-.25.25h-.5a.25.25 0 0 1-.25-.25zm0-2a.25.25 0 0 1 .25-.25h.5a.25.25 0 0 1 .25.25v.5a.25.25 0 0 1-.25.25h-.5a.25.25 0 0 1-.25-.25zm-5 0A.25.25 0 0 1 8.25 8h.5a.25.25 0 0 1 .25.25v.5a.25.25 0 0 1-.25.25h-.5A.25.25 0 0 1 8 8.75zm2 0a.25.25 0 0 1 .25-.25h1.5a.25.25 0 0 1 .25.25v.5a.25.25 0 0 1-.25.25h-1.5a.25.25 0 0 1-.25-.25zm1 2a.25.25 0 0 1 .25-.25h.5a.25.25 0 0 1 .25.25v.5a.25.25 0 0 1-.25.25h-.5a.25.25 0 0 1-.25-.25zm-5-2A.25.25 0 0 1 6.25 8h.5a.25.25 0 0 1 .25.25v.5a.25.25 0 0 1-.25.25h-.5A.25.25 0 0 1 6 8.75zm-2 0A.25.25 0 0 1 4.25 8h.5a.25.25 0 0 1 .25.25v.5a.25.25 0 0 1-.25.25h-.5A.25.25 0 0 1 4 8.75zm-2 0A.25.25 0 0 1 2.25 8h.5a.25.25 0 0 1 .25.25v.5a.25.25 0 0 1-.25.25h-.5A.25.25 0 0 1 2 8.75zm11-2a.25.25 0 0 1 .25-.25h.5a.25.25 0 0 1 .25.25v.5a.25.25 0 0 1-.25.25h-.5a.25.25 0 0 1-.25-.25zm-2 0a.25.25 0 0 1 .25-.25h.5a.25.25 0 0 1 .25.25v.5a.25.25 0 0 1-.25.25h-.5a.25.25 0 0 1-.25-.25zm-2 0A.25.25 0 0 1 9.25 6h.5a.25.25 0 0 1 .25.25v.5a.25.25 0 0 1-.25.25h-.5A.25.25 0 0 1 9 6.75zm-2 0A.25.25 0 0 1 7.25 6h.5a.25.25 0 0 1 .25.25v.5a.25.25 0 0 1-.25.25h-.5A.25.25 0 0 1 7 6.75zm-2 0A.25.25 0 0 1 5.25 6h.5a.25.25 0 0 1 .25.25v.5a.25.25 0 0 1-.25.25h-.5A.25.25 0 0 1 5 6.75zm-3 0A.25.25 0 0 1 2.25 6h1.5a.25.25 0 0 1 .25.25v.5a.25.25 0 0 1-.25.25h-1.5A.25.25 0 0 1 2 6.75zm0 4a.25.25 0 0 1 .25-.25h.5a.25.25 0 0 1 .25.25v.5a.25.25 0 0 1-.25.25h-.5a.25.25 0 0 1-.25-.25zm2 0a.25.25 0 0 1 .25-.25h5.5a.25.25 0 0 1 .25.25v.5a.25.25 0 0 1-.25.25h-5.5a.25.25 0 0 1-.25-.25z" />
+            </svg>
+            Devanagri Keyboard
+        </button>
+        <div class="d-flex justify-content-center">
+            <div id="keyboard" class="simple-keyboard"></div>
+        </div>
+    </div>
+</div>
+
+
+<!-- SEARCH RESULTS PANEL -->
+<div class="container my-5">
+
+    {% if word %}
+
+
+    <div class="d-flex justify-content-between">
+        <p class="text-body-secondary">Showing results for<span class="fw-semibold ms-2">"{{ search }}"</span></p>
+        <p class="text-body-tertiary small-font m-0"><span class="fw-semibold">{{ count }} -</span> results found</p>
+    </div>
+
+    <!-- ROW -->
+    <div class="row gx-3 gy-4 mb-3">
+        {% for s in synsets %}
+        <!-- COLUMN 1 -->
+        <div class="col-6 col-sm-4 col-md-3 col-lg-2">
+            <div class="p-2 border rounded shadow-sm h-100 d-flex flex-column">
+                <img src="https://placehold.co/150x100" class="img-fluid w-100 mb-4" alt="word">
+                <h6 class="fw-semibold">{{ word.word }}</h6>
+                <!-- <p>{{ s.synset_id }}</p> -->
+                <p>{{ s.concept_definition }}</p>
+                <a href="{{ url_for('routes.get_word', word_id=word.word_id, synset_id=s.synset_id) }}" class="btn btn-sm btn-primary w-100 inv-p text-capitalize mt-auto">
+                    View Word <i class="bi bi-arrow-right-short"></i>
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+
+    {% else %}
+
+    <!-- BREAK SPACE -->
+    <div class="my-5 py-5"></div>
+
+    <div class="text-center">
+        <h1>No results found...</h1>
+    </div>
+
+    <!-- BREAK SPACE -->
+    <div class="my-5 py-5"></div>
+
+    {% endif %}
+
+</div>
+
+
+
+{% endblock %}

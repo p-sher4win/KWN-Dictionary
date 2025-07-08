@@ -1,0 +1,7 @@
+__pycache__/
+.venv/
+instance/
+.env
+wordnet_konkani.sql
+wordnet_master.sql
+create_mysql_db.py

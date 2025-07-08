@@ -1,5 +1,227 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>Hello World!</h1>
+
+<!-- SEARCH PANEL -->
+<div class="container my-5">
+
+    <form action="{{ url_for('routes.search') }}" method="POST" class="d-flex mb-3">
+        {{ form.hidden_tag() }}
+        <div class="me-auto w-100">
+            <input type="text" id="devanagari_input" class="form-control" placeholder="Search a word..."
+                name="search_for">
+        </div>
+        <button class="btn btn-success px-4 ms-2" type="submit"><i class="bi bi-search"></i></button>
+    </form>
+    <div class="text-center">
+        <button class="btn btn-sm btn-secondary px-4 mb-2" onclick="toggleKeyboard()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor"
+                class="bi bi-keyboard me-1 mb-1" viewBox="0 0 16 16">
+                <path
+                    d="M14 5a1 1 0 0 1 1 1v5a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1zM2 4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z" />
+                <path
+                    d="M13 10.25a.25.25 0 0 1 .25-.25h.5a.25.25 0 0 1 .25.25v.5a.25.25 0 0 1-.25.25h-.5a.25.25 0 0 1-.25-.25zm0-2a.25.25 0 0 1 .25-.25h.5a.25.25 0 0 1 .25.25v.5a.25.25 0 0 1-.25.25h-.5a.25.25 0 0 1-.25-.25zm-5 0A.25.25 0 0 1 8.25 8h.5a.25.25 0 0 1 .25.25v.5a.25.25 0 0 1-.25.25h-.5A.25.25 0 0 1 8 8.75zm2 0a.25.25 0 0 1 .25-.25h1.5a.25.25 0 0 1 .25.25v.5a.25.25 0 0 1-.25.25h-1.5a.25.25 0 0 1-.25-.25zm1 2a.25.25 0 0 1 .25-.25h.5a.25.25 0 0 1 .25.25v.5a.25.25 0 0 1-.25.25h-.5a.25.25 0 0 1-.25-.25zm-5-2A.25.25 0 0 1 6.25 8h.5a.25.25 0 0 1 .25.25v.5a.25.25 0 0 1-.25.25h-.5A.25.25 0 0 1 6 8.75zm-2 0A.25.25 0 0 1 4.25 8h.5a.25.25 0 0 1 .25.25v.5a.25.25 0 0 1-.25.25h-.5A.25.25 0 0 1 4 8.75zm-2 0A.25.25 0 0 1 2.25 8h.5a.25.25 0 0 1 .25.25v.5a.25.25 0 0 1-.25.25h-.5A.25.25 0 0 1 2 8.75zm11-2a.25.25 0 0 1 .25-.25h.5a.25.25 0 0 1 .25.25v.5a.25.25 0 0 1-.25.25h-.5a.25.25 0 0 1-.25-.25zm-2 0a.25.25 0 0 1 .25-.25h.5a.25.25 0 0 1 .25.25v.5a.25.25 0 0 1-.25.25h-.5a.25.25 0 0 1-.25-.25zm-2 0A.25.25 0 0 1 9.25 6h.5a.25.25 0 0 1 .25.25v.5a.25.25 0 0 1-.25.25h-.5A.25.25 0 0 1 9 6.75zm-2 0A.25.25 0 0 1 7.25 6h.5a.25.25 0 0 1 .25.25v.5a.25.25 0 0 1-.25.25h-.5A.25.25 0 0 1 7 6.75zm-2 0A.25.25 0 0 1 5.25 6h.5a.25.25 0 0 1 .25.25v.5a.25.25 0 0 1-.25.25h-.5A.25.25 0 0 1 5 6.75zm-3 0A.25.25 0 0 1 2.25 6h1.5a.25.25 0 0 1 .25.25v.5a.25.25 0 0 1-.25.25h-1.5A.25.25 0 0 1 2 6.75zm0 4a.25.25 0 0 1 .25-.25h.5a.25.25 0 0 1 .25.25v.5a.25.25 0 0 1-.25.25h-.5a.25.25 0 0 1-.25-.25zm2 0a.25.25 0 0 1 .25-.25h5.5a.25.25 0 0 1 .25.25v.5a.25.25 0 0 1-.25.25h-5.5a.25.25 0 0 1-.25-.25z" />
+            </svg>
+            Devanagri Keyboard
+        </button>
+        <div class="d-flex justify-content-center">
+            <div id="keyboard" class="simple-keyboard"></div>
+        </div>
+    </div>
+</div>
+
+
+<!-- BREAK SPACE -->
+<div class="my-3 py-3"></div>
+
+
+<!-- INTRODUCTION PANEL -->
+<div class="container my-5">
+
+    <div class="d-flex flex-column text-center">
+        <h1 class="display-1 mb-4 text-capitalize fw-semibold">Introduction</h1>
+        <p class="text-body-secondary text-justify">Lorem ipsum dolor sit amet consectetur adipisicing elit. Sunt
+            adipisci odit
+            temporibus necessitatibus debitis beatae vitae? Dicta accusamus delectus adipisci iste labore! Dolorem
+            voluptate et omnis, nobis impedit quae quasi.</p>
+        <a href="{{ url_for('routes.introduction') }}" class="link-underline link-underline-opacity-0">Know More
+            <span class="ms-1">
+                <i class="bi bi-arrow-right"></i>
+            </span>
+        </a>
+    </div>
+</div>
+
+
+<!-- BREAK SPACE -->
+<div class="my-5 py-5"></div>
+
+
+<!-- SPECIAL FEATURE PANEL -->
+<div class="container my-5">
+
+    <div class="text-center">
+        <h1 class="display-1 mb-4 text-capitalize fw-semibold">Features</h1>
+    </div>
+
+    <!-- BREAK SPACE -->
+    <div class="my-5"></div>
+    <!-- ROW-1 -->
+    <div class="row gy-5 text-center mb-5">
+        <!-- SINGLE CARD MAX-3 MIN-1 -->
+        <div class="col-7 col-lg-3 p-1 mx-auto">
+            <div class="d-flex flex-column">
+                <img src="{{ url_for('static', filename='images/f1.png') }}" class="img-fluid rounded mx-auto"
+                    width="50" alt="feature">
+                <i class="fi fi-tr-circle-nodes"></i>
+                <div class="mt-4 px-2">
+                    <h6 class="fw-semibold">Synonyms</h6>
+                    <p class="text-body-secondary">Displays words with similar meanings in Konkani, helping users expand
+                        their vocabulary.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-7 col-lg-3 p-1 mx-auto">
+            <div class="d-flex flex-column">
+                <img src="{{ url_for('static', filename='images/f2.png') }}" class="img-fluid rounded mx-auto"
+                    width="50" alt="feature">
+                <div class="mt-4 px-2">
+                    <h6 class="fw-semibold">Antonym Lookup</h6>
+                    <p class="text-body-secondary">Provides words with opposite meanings to enhance language
+                        understanding.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-7 col-lg-3 p-1 mx-auto">
+            <div class="d-flex flex-column">
+                <img src="{{ url_for('static', filename='images/f3.png') }}" class="img-fluid rounded mx-auto"
+                    width="50" alt="feature">
+                <div class="mt-4 px-2">
+                    <h6 class="fw-semibold">Part-of-Speech</h6>
+                    <p class="text-body-secondary">Categorizes words (noun, verb, adjective, etc.) for better linguistic
+                        analysis.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ROW-2 -->
+    <div class="row gy-5 text-center">
+        <!-- SINGLE CARD MAX-3 MIN-1 -->
+        <div class="col-7 col-lg-3 p-1 mx-auto">
+            <div class="d-flex flex-column">
+                <img src="{{ url_for('static', filename='images/f4.png') }}" class="img-fluid rounded mx-auto"
+                    width="50" alt="feature">
+                <div class="mt-4 px-2">
+                    <h6 class="fw-semibold">Example Sentences</h6>
+                    <p class="text-body-secondary">Shows words used in context to aid comprehension.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-7 col-lg-3 p-1 mx-auto">
+            <div class="d-flex flex-column">
+                <img src="{{ url_for('static', filename='images/f5.png') }}" class="img-fluid rounded mx-auto"
+                    width="50" alt="feature">
+                <div class="mt-4 px-2">
+                    <h6 class="fw-semibold">Word Image Representation</h6>
+                    <p class="text-body-secondary">Displays an image related to the word to enhance understanding,
+                        especially for nouns and tangible objects.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-7 col-lg-3 p-1 mx-auto">
+            <div class="d-flex flex-column">
+                <img src="{{ url_for('static', filename='images/f6.png') }}" class="img-fluid rounded mx-auto"
+                    width="50" alt="feature">
+                <div class="mt-4 px-2">
+                    <h6 class="fw-semibold">Etymology and Root Words</h6>
+                    <p class="text-body-secondary">Provides word origins and derivations to understand linguistic
+                        evolution.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- BREAK SPACE -->
+<div class="my-5 py-5"></div>
+
+
+<!-- STATISTICS PANEL -->
+<div class="container my-5">
+
+    <div class="d-flex flex-column text-center mx-5">
+        <div class="text-center">
+            <h1 class="display-1 mb-4 text-capitalize fw-semibold">Statistics</h1>
+        </div>
+
+        <!-- BREAK SPACE -->
+        <div class="my-3"></div>
+
+        <div class="d-flex justify-content-center align-items-center mx-sm-4 px-sm-4 mx-md-5 px-md-5">
+            <p class="m-auto">Language:</p>
+            <select class="form-select mx-3">
+                <option selected>Konkani</option>
+                <option value="1">English</option>
+                <option value="2">Hindi</option>
+                <option value="3">Marathi</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- STATISTICS DISPLAY SECTION -->
+    <div class="d-flex my-5 mx-sm-4 px-sm-4 mx-md-5 px-md-5">
+        <table class="table table-light table-bordered text-center shadow-sm mx-lg-5">
+            <caption class="text-body-tertiary text-center fst-italic">current statistics of <span
+                    class="fw-semibold">Konkani Database</span></caption>
+            <thead class="table-secondary">
+                <tr>
+                    <td class="fw-bold text-body-secondary">Language</td>
+                    <td class="fw-bold text-body-secondary">Konkani</td>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="text-body-secondary">Noun</td>
+                    <td class="fw-semibold text-body-secondary">{{ noun_count }}</td>
+                </tr>
+                <tr>
+                    <td class="text-body-secondary">Verb</td>
+                    <td class="fw-semibold text-body-secondary">{{ verb_count }}</td>
+                </tr>
+                <tr>
+                    <td class="text-body-secondary">Adjective</td>
+                    <td class="fw-semibold text-body-secondary">{{ adjective_count }}</td>
+                </tr>
+                <tr>
+                    <td class="text-body-secondary">Adverb</td>
+                    <td class="fw-semibold text-body-secondary">{{ adverb_count }}</td>
+                </tr>
+                <tr>
+                    <td class="text-body-secondary">Total</td>
+                    <td class="fw-semibold text-body-secondary">{{ konk_count }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+<!-- BREAK SPACE -->
+<div class="my-5 py-5"></div>
+
+
+<!-- SEARCH PAGE LINK -->
+<div class="text-center">
+    <a href="{{ url_for('routes.dictionary') }}" class="btn btn-primary px-4">Go to search</a>
+</div>
+
+
+<!-- BREAK SPACE -->
+<div class="my-3 py-3"></div>
 {% endblock %}

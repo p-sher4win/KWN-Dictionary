@@ -361,13 +361,13 @@ def generate_img(word_id, synset_id):
     get_context = konk_synset.concept_definition
 
     word = ms_translate_konk_eng(get_word)
-    context = ms_translate_konk_eng(get_context)
+    # context = ms_translate_konk_eng(get_context)
 
-    prompt = f"A realistic image of {word}"
+    prompt = f"A clear and realistic illustration of {word}"
 
     print(f"\nImage Prompt = {prompt}\n")
 
-    img = pipe(prompt, height=512, width=512).images[0]
+    img = pipe(prompt, height=384, width=384, guidance_scale=7.0, num_inference_steps=30).images[0]
 
     # pipe = load_image_model()
 

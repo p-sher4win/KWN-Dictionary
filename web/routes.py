@@ -7,8 +7,8 @@ from . import db
 from config import Config
 
 # IMAGE GENERATION IMPORTS ⬇️ 
-import torch
-from diffusers import StableDiffusionPipeline, EulerDiscreteScheduler, DiffusionPipeline
+# import torch
+# from diffusers import DiffusionPipeline
 from io import BytesIO
 
 
@@ -240,16 +240,35 @@ def get_semantic_rel(synset_id):
 
 # IMAGE GENERATION PROCESS
 # LOAD MODEL
-model_id = "stabilityai/stable-diffusion-2-1-base"
-scheduler = EulerDiscreteScheduler.from_pretrained(model_id, subfolder="scheduler")
-pipe = StableDiffusionPipeline.from_pretrained(model_id, torch_dtype=torch.float16)
-pipe = pipe.to("cuda")
+model_id = "stabilityai/stable-diffusion-xl-base-1.0"
+# scheduler = EulerDiscreteScheduler.from_pretrained(model_id, subfolder="scheduler")
+# pipe = DiffusionPipeline.from_pretrained(model_id, torch_dtype=torch.float16, variant="fp16", use_safetensors=True)
+# pipe = pipe.to("cuda")
 
 # model_id = "DeepFloyd/IF-I-XL-v1.0"
 # def load_image_model():
 #     pipe = DiffusionPipeline.from_pretrained(model_id, torch_dtype=torch.float16)
 #     return pipe.to("cuda")
 
+pipe = None
+
+def get_pipe():
+    global pipe
+    if pipe is None:
+        from diffusers import DiffusionPipeline
+        import torch
+
+        pipe = DiffusionPipeline.from_pretrained(
+            model_id,
+            torch_dtype=torch.float16,
+            variant="fp16",
+            use_safetensors=True
+        )
+        pipe.to("cuda")
+        pipe.enable_attention_slicing()
+        pipe.vae.enable_slicing()
+
+    return pipe
 
 
 
@@ -361,15 +380,19 @@ def generate_img(word_id, synset_id):
     get_context = konk_synset.concept_definition
 
     word = ms_translate_konk_eng(get_word)
+    if "Translation Error" in word:
+        word = get_word
     # context = ms_translate_konk_eng(get_context)
 
-    prompt = f"A clear and realistic illustration of {word}"
+    # prompt = f"A clear and realistic illustration of {word}"
+    prompt = f"A clear, realistic, high-quality photograph of tree"
 
     print(f"\nImage Prompt = {prompt}\n")
 
-    img = pipe(prompt, height=384, width=384, guidance_scale=7.0, num_inference_steps=30).images[0]
+    pipe_instance = get_pipe()
 
-    # pipe = load_image_model()
+    negative_prompt = "blurry, low quality, distorted, deformed, abstract, cartoon, extra limbs, cropped, out of frame, text, watermark"
+    img = pipe_instance(prompt=prompt, negative_prompt=negative_prompt, height=768, width=768, guidance_scale=7.5, num_inference_steps=15).images[0]
 
     # img = pipe(prompt, height=384, width=384, guidance_scale=7.0, num_inference_steps=20).images[0]
 

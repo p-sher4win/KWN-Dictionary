@@ -16,8 +16,8 @@
 
     <!-- DISPLAY IMAGE -->
     <div class="text-center mb-2 img-src">
-        <img src="{{ word_data.img_url }}" width="200" class="rounded" alt="word-img">
-        <p class="fw-lighter text-body-tertiary small-font">hf-model</p>
+        <img src="{{ url_for('routes.generate_img', word_id=word) }}" width="200" alt="word-img">
+        <p class="fw-lighter text-body-tertiary small-font">image by pixazo</p>
     </div>
 
     <table class="table table-bordered shadow-sm mx-auto" style="max-width: 800px;">
@@ -143,13 +143,15 @@
                     {% for item in data.hyper %}
                     <tr>
 
-                        <td class="py-3">
+                        <td class="text-center py-3">
                             {{ item.synset_id }}
                         </td>
 
                         <td class="py-3">
-                            {% for s in data.hyper_syn %}
-                                {{ s.word }}<br>
+                            {% for syn in data.hyper_syn %}
+                                {% if syn.synset_id == item.synset_id %}
+                                    {{ syn.words | join(', ') }}
+                                {% endif %}
                             {% endfor %}
                         </td>
 
@@ -187,7 +189,7 @@
                         <th class="text-center text-body-tertiary py-3">Hyponymy ID</th>
                         <th class="text-center text-body-tertiary py-3">Synonym</th>
                         <th class="text-center text-body-tertiary py-3">Concept</th>
-                        <th class="text-center text-body-tertiary py-3">Example</th
+                        <th class="text-center text-body-tertiary py-3">Example</th>
                     </tr>
                     
                     {% for data in relations %}
@@ -195,12 +197,16 @@
                     {% for item in data.hypo %}
                     <tr>
 
-                        <td class="py-3">
+                        <td class="text-center py-3">
                             {{ item.synset_id }}
                         </td>
 
                         <td class="py-3">
-                            
+                            {% for syn in data.hypo_syn %}
+                                {% if syn.synset_id == item.synset_id %}
+                                    {{ syn.words | join(', ') }}
+                                {% endif %}
+                            {% endfor %}
                         </td>
 
                         <td class="py-3">
@@ -245,12 +251,16 @@
                     {% for item in data.holo %}
                     <tr>
 
-                        <td class="py-3">
+                        <td class="text-center py-3">
                             {{ item.synset_id }}
                         </td>
 
                         <td class="py-3">
-                            
+                            {% for syn in data.holo_syn %}
+                                {% if syn.synset_id == item.synset_id %}
+                                    {{ syn.words | join(', ') }}
+                                {% endif %}
+                            {% endfor %}
                         </td>
 
                         <td class="py-3">
@@ -295,12 +305,16 @@
                     {% for item in data.mero %}
                     <tr>
 
-                        <td class="py-3">
+                        <td class="text-center py-3">
                             {{ item.synset_id }}
                         </td>
 
                         <td class="py-3">
-                            
+                            {% for syn in data.mero_syn %}
+                                {% if syn.synset_id == item.synset_id %}
+                                    {{ syn.words | join(', ') }}
+                                {% endif %}
+                            {% endfor %}
                         </td>
 
                         <td class="py-3">
@@ -372,19 +386,19 @@
                     <tr>
                         <th class="text-center text-body-tertiary py-3">Word:</th>
                         <th class="text-capitalize py-3">
-                            {{ eng_data.eng_word }}
+                            {{ eng_data.eng_word if eng_data else "" }}
                         </th>
                     </tr>
                     <tr>
                         <th class="text-center text-body-tertiary py-3">Glossary:</th>
                         <td class="py-3">
-                            {{ eng_data.gloss }}
+                            {{ eng_data.gloss if eng_data else "" }}
                         </td>
                     </tr>
                     <tr>
                         <th class="text-center text-body-tertiary py-3">Usage:</th>
                         <td class="py-3">
-                            {{ eng_data.usage.replace("|", "") }}
+                            {{ eng_data.usage if eng_data else "" }}
                         </td>
                     </tr>
                 </tbody>
@@ -398,19 +412,19 @@
                     <tr>
                         <th class="text-center text-body-tertiary py-3">Word:</th>
                         <th class="text-capitalize py-3">
-                            {{ hindi_data.hindi_word }}
+                            {{ hindi_data.hindi_word if hindi_data else "" }}
                         </th>
                     </tr>
                     <tr>
                         <th class="text-center text-body-tertiary py-3">Glossary:</th>
                         <td class="py-3">
-                            {{ hindi_data.gloss }}
+                            {{ hindi_data.gloss if hindi_data else "" }}
                         </td>
                     </tr>
                     <tr>
                         <th class="text-center text-body-tertiary py-3">Usage:</th>
                         <td class="py-3">
-                            {{ hindi_data.usage.replace("|", "") }}
+                            {{ hindi_data.usage if hindi_data else "" }}
                         </td>
                     </tr>
                 </tbody>
@@ -424,19 +438,19 @@
                     <tr>
                         <th class="text-center text-body-tertiary py-3">Word:</th>
                         <th class="text-capitalize py-3">
-                            {{ marathi_data.marathi_word }}
+                            {{ marathi_data.marathi_word if marathi_data else "" }}
                         </th>
                     </tr>
                     <tr>
                         <th class="text-center text-body-tertiary py-3">Glossary:</th>
                         <td class="py-3">
-                            {{ marathi_data.gloss }}
+                            {{ marathi_data.gloss if marathi_data else "" }}
                         </td>
                     </tr>
                     <tr>
                         <th class="text-center text-body-tertiary py-3">Usage:</th>
                         <td class="py-3">
-                            {{ marathi_data.usage.replace("|", "") }}
+                            {{ marathi_data.usage if marathi_data else "" }}
                         </td>
                     </tr>
                 </tbody>

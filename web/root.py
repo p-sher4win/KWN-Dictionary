@@ -1,7 +1,5 @@
 from flask import Blueprint, render_template, jsonify
 from .mast_models import *
-from .konk_models import *
-
 
 root = Blueprint('root', __name__)
 

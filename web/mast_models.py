@@ -90,7 +90,6 @@ class MasterSynsetMembership(db.Model):
     member_id = db.Column(db.Integer, db.ForeignKey('wn_master_membership.member_id'), primary_key=True)
 
     def get_synset(self):
-        from .konk_models import KonkaniSynset
         synset = KonkaniSynset.query.get(self.synset_id)
         return {
             "synset_id": synset.synset_id if synset else None,
@@ -108,7 +107,6 @@ class MasterSemanticRelations(db.Model):
     relation_id = db.Column(db.Integer, db.ForeignKey('wn_master_relation_types.relation_id'), primary_key=True)
 
     def get_synset(self):
-        from .konk_models import KonkaniSynset
         synset = KonkaniSynset.query.get(self.synset_id)
         return {
             "synset_id": synset.synset_id if synset else None,
@@ -126,7 +124,6 @@ class MasterRelHypernymyHyponymy(db.Model):
     child_synset_id = db.Column(db.BigInteger, primary_key=True)
 
     def get_parent_synset(self):
-        from .konk_models import KonkaniSynset
         synset = KonkaniSynset.query.get(self.parent_synset_id)
         return {
             "synset_id": synset.synset_id if synset else None,
@@ -137,7 +134,6 @@ class MasterRelHypernymyHyponymy(db.Model):
         }
     
     def get_child_synset(self):
-        from .konk_models import KonkaniSynset
         synset = KonkaniSynset.query.get(self.child_synset_id)
         return {
             "synset_id": synset.synset_id if synset else None,
@@ -156,7 +152,6 @@ class MasterRelMeronymyHolonymy(db.Model):
     mero_holo_property_id = db.Column(db.Integer, db.ForeignKey('wn_master_property_meronymy_holonymy.mero_holo_property_id'), nullable=False)
 
     def get_whole_synset(self):
-        from .konk_models import KonkaniSynset
         synset = KonkaniSynset.query.get(self.whole_synset_id)
         return {
             "synset_id": synset.synset_id if synset else None,
@@ -167,7 +162,6 @@ class MasterRelMeronymyHolonymy(db.Model):
         }
     
     def get_part_synset(self):
-        from .konk_models import KonkaniSynset
         synset = KonkaniSynset.query.get(self.part_synset_id)
         return {
             "synset_id": synset.synset_id if synset else None,
@@ -185,7 +179,6 @@ class MasterRelTroponymy(db.Model):
     troponym_synset_id = db.Column(db.BigInteger, primary_key=True)
 
     def get_synset(self):
-        from .konk_models import KonkaniSynset
         synset = KonkaniSynset.query.get(self.synset_id)
         return {
             "synset_id": synset.synset_id if synset else None,
@@ -196,7 +189,6 @@ class MasterRelTroponymy(db.Model):
         }
     
     def get_troponymy_synset(self):
-        from .konk_models import KonkaniSynset
         synset = KonkaniSynset.query.get(self.troponym_synset_id)
         return {
             "synset_id": synset.synset_id if synset else None,
@@ -214,7 +206,6 @@ class MasterRelEntailment(db.Model):
     entailed_synset_id = db.Column(db.BigInteger, primary_key=True)
 
     def get_synset(self):
-        from .konk_models import KonkaniSynset
         synset = KonkaniSynset.query.get(self.synset_id)
         return {
             "synset_id": synset.synset_id if synset else None,
@@ -225,7 +216,6 @@ class MasterRelEntailment(db.Model):
         }
     
     def get_entailed_synset(self):
-        from .konk_models import KonkaniSynset
         synset = KonkaniSynset.query.get(self.entailed_synset_id)
         return {
             "synset_id": synset.synset_id if synset else None,
@@ -243,7 +233,6 @@ class MasterRelSimilar(db.Model):
     similar_synset_id = db.Column(db.BigInteger, primary_key=True)
 
     def get_synset(self):
-        from .konk_models import KonkaniSynset
         synset = KonkaniSynset.query.get(self.synset_id)
         return {
             "synset_id": synset.synset_id if synset else None,
@@ -254,7 +243,6 @@ class MasterRelSimilar(db.Model):
         }
     
     def get_similar_synset(self):
-        from .konk_models import KonkaniSynset
         synset = KonkaniSynset.query.get(self.similar_synset_id)
         return {
             "synset_id": synset.synset_id if synset else None,
@@ -272,7 +260,6 @@ class MasterRelAlsoSee(db.Model):
     also_see_synset_id = db.Column(db.BigInteger, primary_key=True)
 
     def get_synset(self):
-        from .konk_models import KonkaniSynset
         synset = KonkaniSynset.query.get(self.synset_id)
         return {
             "synset_id": synset.synset_id if synset else None,
@@ -283,7 +270,6 @@ class MasterRelAlsoSee(db.Model):
         }
     
     def get_also_see_synset(self):
-        from .konk_models import KonkaniSynset
         synset = KonkaniSynset.query.get(self.also_see_synset_id)
         return {
             "synset_id": synset.synset_id if synset else None,
@@ -302,7 +288,6 @@ class MasterRelNounVerbLink(db.Model):
     link_id = db.Column(db.Integer, db.ForeignKey('wn_master_property_link_type.link_id'), nullable=False)
 
     def get_noun_synset(self):
-        from .konk_models import KonkaniSynset
         synset = KonkaniSynset.query.get(self.noun_synset_id)
         return {
             "synset_id": synset.synset_id if synset else None,
@@ -313,7 +298,6 @@ class MasterRelNounVerbLink(db.Model):
         }
     
     def get_verb_synset(self):
-        from .konk_models import KonkaniSynset
         synset = KonkaniSynset.query.get(self.verb_synset_id)
         return {
             "synset_id": synset.synset_id if synset else None,
@@ -331,7 +315,6 @@ class MasterRelNounAdjectiveAttributeLink(db.Model):
     adjective_synset_id = db.Column(db.BigInteger, primary_key=True)
 
     def get_noun_synset(self):
-        from .konk_models import KonkaniSynset
         synset = KonkaniSynset.query.get(self.noun_synset_id)
         return {
             "synset_id": synset.synset_id if synset else None,
@@ -342,7 +325,6 @@ class MasterRelNounAdjectiveAttributeLink(db.Model):
         }
     
     def get_adjective_synset(self):
-        from .konk_models import KonkaniSynset
         synset = KonkaniSynset.query.get(self.adjective_synset_id)
         return {
             "synset_id": synset.synset_id if synset else None,
@@ -360,7 +342,6 @@ class MasterRelAdjectiveModifiesNoun(db.Model):
     noun_synset_id = db.Column(db.BigInteger, primary_key=True)
 
     def get_adjective_synset(self):
-        from .konk_models import KonkaniSynset
         synset = KonkaniSynset.query.get(self.adjective_synset_id)
         return {
             "synset_id": synset.synset_id if synset else None,
@@ -371,7 +352,6 @@ class MasterRelAdjectiveModifiesNoun(db.Model):
         }
     
     def get_noun_synset(self):
-        from .konk_models import KonkaniSynset
         synset = KonkaniSynset.query.get(self.noun_synset_id)
         return {
             "synset_id": synset.synset_id if synset else None,
@@ -389,7 +369,6 @@ class MasterRelAdverbModifiesVerb(db.Model):
     verb_synset_id = db.Column(db.BigInteger, primary_key=True)
 
     def get_adverb_synset(self):
-        from .konk_models import KonkaniSynset
         synset = KonkaniSynset.query.get(self.adverb_synset_id)
         return {
             "synset_id": synset.synset_id if synset else None,
@@ -400,7 +379,6 @@ class MasterRelAdverbModifiesVerb(db.Model):
         }
     
     def get_verb_synset(self):
-        from .konk_models import KonkaniSynset
         synset = KonkaniSynset.query.get(self.verb_synset_id)
         return {
             "synset_id": synset.synset_id if synset else None,
@@ -418,7 +396,6 @@ class MasterRelCausative(db.Model):
     causes_synset_id = db.Column(db.BigInteger, primary_key=True)
 
     def get_synset(self):
-        from .konk_models import KonkaniSynset
         synset = KonkaniSynset.query.get(self.synset_id)
         return {
             "synset_id": synset.synset_id if synset else None,
@@ -429,7 +406,6 @@ class MasterRelCausative(db.Model):
         }
     
     def get_causes_synset(self):
-        from .konk_models import KonkaniSynset
         synset = KonkaniSynset.query.get(self.causes_synset_id)
         return {
             "synset_id": synset.synset_id if synset else None,
@@ -447,7 +423,6 @@ class MasterRelNearSynsets(db.Model):
     near_synset_id = db.Column(db.BigInteger, primary_key=True)
 
     def get_synset(self):
-        from .konk_models import KonkaniSynset
         synset = KonkaniSynset.query.get(self.synset_id)
         return {
             "synset_id": synset.synset_id if synset else None,
@@ -458,7 +433,6 @@ class MasterRelNearSynsets(db.Model):
         }
     
     def get_near_synset(self):
-        from .konk_models import KonkaniSynset
         synset = KonkaniSynset.query.get(self.near_synset_id)
         return {
             "synset_id": synset.synset_id if synset else None,
@@ -494,7 +468,6 @@ class MasterOntologySynsetMap(db.Model):
     onto_nodes_id = db.Column(db.Integer, db.ForeignKey('wn_master_ontology_nodes.onto_id'), primary_key=True)
 
     def get_synset(self):
-        from .konk_models import KonkaniSynset
         synset = KonkaniSynset.query.get(self.synset_id)
         return {
             "synset_id": synset.synset_id if synset else None,
@@ -503,3 +476,53 @@ class MasterOntologySynsetMap(db.Model):
             "source_id": synset.source_id if synset else None,
             "domain_id": synset.domain_id if synset else None,
         }
+    
+
+# WORDNET KONKANI DATABASE MODELS
+# WN SOURCE MODEL
+class KonkaniSource(db.Model):
+    __tablename__ = 'wn_source'
+    source_id = db.Column(db.Integer, primary_key=True)
+    source_value = db.Column(db.String(255), index=True)
+
+    synsets = db.relationship('KonkaniSynset', backref='source')
+
+
+# WN SYNSET MODEL
+class KonkaniSynset(db.Model):
+    __tablename__ = 'wn_synset'
+    synset_id = db.Column(db.BigInteger, primary_key=True)
+    concept_definition = db.Column(db.Text)
+    category_id = db.Column(db.Integer, db.ForeignKey('wn_master_category.category_id'), nullable=False, default=0)
+    source_id = db.Column(db.Integer, db.ForeignKey('wn_source.source_id'), nullable=False, default=0)
+    domain_id = db.Column(db.Integer, db.ForeignKey('wn_master_domain.domain_id'), nullable=False, default=0)
+
+    synset_words = db.relationship('KonkaniSynsetWords', backref='wn_synset_words')
+    synset_examples = db.relationship('KonkaniSynsetExample', backref='synset_examples')
+    category = db.relationship('MasterCategory', backref='synset_category')
+    domain = db.relationship('MasterDomain', backref='synset_domain')
+
+
+# WN WORD MODEL
+class KonkaniWord(db.Model):
+    __tablename__ = 'wn_word'
+    word_id = db.Column(db.BigInteger, primary_key=True)
+    word = db.Column(db.String(255), index=True)
+    
+    synset_words = db.relationship('KonkaniSynsetWords', backref='synset_words')
+
+    
+# WN SYNSET WORDS MODEL
+class KonkaniSynsetWords(db.Model):
+    __tablename__ = 'wn_synset_words'
+    synset_id = db.Column(db.BigInteger, db.ForeignKey('wn_synset.synset_id'), primary_key=True, default=0)
+    word_id = db.Column(db.BigInteger, db.ForeignKey('wn_word.word_id'), primary_key=True, default=0)
+    word_order = db.Column(db.Integer, nullable=False, index=True)
+
+
+# WN SYNSET EXAMPLE MODEL
+class KonkaniSynsetExample(db.Model):
+    __tablename__ = 'wn_synset_example'
+    synset_id = db.Column(db.BigInteger, db.ForeignKey('wn_synset.synset_id'), primary_key=True, index=True)
+    example_content = db.Column(db.Text)
+    example_order = db.Column(db.Integer, primary_key=True, index=True)

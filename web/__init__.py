@@ -24,10 +24,6 @@ def create_app():
     app.register_blueprint(root, url_prefix='/')
 
 
-    # CALL CREATE SCHEMA FUNCTION
-    # create_db_schema(app)
-
-
     # CREATE CUSTOM ERROR PAGES
     # PAGE NOT FOUND
     @app.errorhandler(404)
@@ -41,13 +37,3 @@ def create_app():
 
 
     return app
-
-
-
-
-# CREATE TABLE SCHEMA IN DATABASE
-def create_db_schema(app):
-    with app.app_context():
-        db.Model.metadata.clear()
-        db.create_all()
-        print("Created Schema")

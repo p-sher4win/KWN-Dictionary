@@ -1,62 +1,62 @@
-from flask import Blueprint, render_template, flash, redirect, request, send_file, url_for
-import requests
-from .webforms import SearchWordForm
-from .konk_models import *
-from .mast_models import *
+from flask import Blueprint, render_template, flash, redirect,url_for
 from . import db
+from .mast_models import *
+from .webforms import SearchWordForm
+from googletrans import Translator
+import requests
 from config import Config
 
-# IMAGE GENERATION IMPORTS ⬇️ 
-# import torch
-# from diffusers import DiffusionPipeline
-from io import BytesIO
+
+# UNOFFICIAL GOOGLE TRANSLATE INSTANCE
+translator = Translator()
+
+# GOOGLE TRANSLATE FUNCTION (UNOFFICIAL)
+def translate_text(text, target_lang):
+    try:
+        result = translator.translate(text, dest=target_lang)
+        return result.text
+    except Exception as e:
+        print("Translation error:", e)
+        return text
+
+def translate_to_english(text):
+    try:
+        result = translator.translate(text, dest="en")
+        return result.text
+    except Exception as e:
+        print("Translation error:", e)
+        return text
 
 
-# MICROSOFT TRANSLATOR API CREDENTIALS
-MS_TRANSLATOR_KEY = Config.MS_TRANSLATOR_KEY
-MS_TRANSLATOR_ENDPOINT = Config.MS_TRANSLATOR_ENDPOINT
-MS_TRANSLATOR_REGION = Config.MS_TRANSLATOR_REGION
+# IMAGE GENERATION
+PIXAZO_API_KEY = Config.PIXAZO_API_KEY
 
-
-
-
-# FUNCTIONS
-# MS TRANSLATE FUNCTION
-def translate_text(text, source_lang, target_lang):
+def generate_image_from_prompt(prompt, negative_prompt=None, width=1024, height=1024, num_steps=20, guidance_scale=5, seed=None):
+    url = "https://gateway.pixazo.ai/getImage/v1/getSDXLImage"
     headers = {
-        'Ocp-Apim-Subscription-Key': MS_TRANSLATOR_KEY,
-        'Ocp-Apim-Subscription-Region': MS_TRANSLATOR_REGION,
-        'Content-type': 'application/json'
+        "Content-Type": "application/json",
+        "Cache-Control": "no-cache",
+        "Ocp-Apim-Subscription-Key": PIXAZO_API_KEY
     }
-
-    params = {
-        'api-version': '3.0',
-        'from': source_lang,
-        'to': target_lang
+    payload = {
+        "prompt": prompt,
+        "negative_prompt": negative_prompt or "",
+        "width": width,
+        "height": height,
+        "num_steps": num_steps,
+        "guidance_scale": guidance_scale
     }
-
-    body = [{'text': text}]
-
-    request = requests.post(MS_TRANSLATOR_ENDPOINT, params=params, headers=headers, json=body)
+    if seed is not None:
+        payload["seed"] = seed
 
     try:
-        response = request.json()
-        return response[0]['translations'][0]['text'] if response else text
-    except requests.exceptions.JSONDecodeError:
-        return "Translation Error: Invalid response from API"
-
-
-# MS TRANSLATE KONK TO ENG FUNCTION
-def ms_translate_konk_eng(text):
-    return translate_text(text, 'gom', 'en')
-
-# MS TRANSLATE KONK TO HINDI FUNCTION
-def ms_translate_konk_hindi(text):
-    return translate_text(text, 'gom', 'hi')
-
-# MS TRANSLATE KONK TO MARATHI FUNCTION
-def ms_translate_konk_marathi(text):
-    return translate_text(text, 'gom', 'mr')
+        response = requests.post(url, json=payload, headers=headers, timeout=30)
+        response.raise_for_status()
+        data = response.json()
+        return data.get("imageUrl")
+    
+    except Exception as e:
+        print("Pixazo API error:", e)
 
 
 # GET SYNONYMS OF A WORD
@@ -94,6 +94,16 @@ def get_semantic_rel(synset_id):
 
     synset = KonkaniSynset.query.get_or_404(synset_id)
 
+    def get_words_by_synset(synset_id):
+        words = (
+            KonkaniWord.query
+            .join(KonkaniSynsetWords)
+            .filter(KonkaniSynsetWords.synset_id == synset_id)
+            .order_by(KonkaniSynsetWords.word_order)
+            .all()
+        )
+        return [w.word.replace("_", " ") for w in words]
+
     if synset:
         semantic_synet =  MasterSemanticRelations.query.filter(MasterSemanticRelations.synset_id == synset_id).all()
 
@@ -101,116 +111,79 @@ def get_semantic_rel(synset_id):
             MasterSemanticRelations.query.join(MasterRelationTypes, MasterSemanticRelations.relation_id == MasterRelationTypes.relation_id).filter(MasterSemanticRelations.synset_id == synset.synset_id).all()
         )
 
-
+        # GET HYPERNYMY DATA
         hyper = MasterRelHypernymyHyponymy.query.filter(MasterRelHypernymyHyponymy.parent_synset_id == synset_id).all()
 
         hyper_exm_ids = [hr.child_synset_id for hr in hyper]
 
-        print(f"IDs: {hyper_exm_ids}")
-
-        hyper_synonyms_id = KonkaniSynsetWords.query.join(KonkaniSynset, KonkaniSynsetWords.synset_id == hyper_exm_ids).filter(KonkaniWord.word_id == KonkaniSynsetWords.word_id).all()
-
         hyper_synonyms = []
-        for synset in hyper_synonyms_id:
-            # GET ALL WORDS IN THIS SYNSET
-            words_in_synset = (
-                KonkaniWord.query.join(KonkaniSynsetWords, KonkaniWord.word_id == KonkaniSynsetWords.word_id).filter(KonkaniSynsetWords.synset_id == synset.synset_id).order_by(KonkaniSynsetWords.word_order).all()
-            )
 
-            for w in words_in_synset:
-                if w.word_id != hyper_exm_ids:
-                    hyper_synonyms.append({
-                        "id": w.word_id,
-                        "word": w.word.replace("_", " "),
-                        "sid": synset.synset_id,
-                    })
+        for hr in hyper:
+            child_synset_id = hr.child_synset_id
+
+            hyper_synonyms.append({
+                "synset_id": child_synset_id,
+                "words": get_words_by_synset(child_synset_id)
+            })
+
 
         hyper_exm = (
             KonkaniSynsetExample.query.filter(KonkaniSynsetExample.synset_id.in_(hyper_exm_ids)).all()
         )
 
-
-
+        # GET HYPONYMY DATA
         hypo = MasterRelHypernymyHyponymy.query.filter(MasterRelHypernymyHyponymy.child_synset_id == synset_id).all()
 
         hypo_exm_ids = [hy.parent_synset_id for hy in hypo]
 
-        # hypo_synonyms_id = KonkaniSynsetWords.query.join(KonkaniSynset, KonkaniSynsetWords.synset_id == hypo_exm_ids).filter(KonkaniWord.word_id == KonkaniSynsetWords.word_id).all()
+        hypo_synonyms = []
 
-        # hypo_synonyms = []
-        # for synset in hypo_synonyms_id:
-        #     # GET ALL WORDS IN THIS SYNSET
-        #     words_in_synset = (
-        #         KonkaniWord.query.join(KonkaniSynsetWords, KonkaniWord.word_id == KonkaniSynsetWords.word_id).filter(KonkaniSynsetWords.synset_id == synset.synset_id).order_by(KonkaniSynsetWords.word_order).all()
-        #     )
+        for hy in hypo:
+            parent_synset_id = hy.parent_synset_id
 
-        #     for w in words_in_synset:
-        #         if w.word_id != hyper_exm_ids:
-        #             hypo_synonyms.append({
-        #                 "id": w.word_id,
-        #                 "word": w.word.replace("_", " "),
-        #                 "sid": synset.synset_id,
-        #             })
+            hypo_synonyms.append({
+                "synset_id": parent_synset_id,
+                "words": get_words_by_synset(parent_synset_id)
+            })
 
-        # hypo_synonyms = get_synonyms(hypo_exm_ids)
 
         hypo_exm = (
             KonkaniSynsetExample.query.filter(KonkaniSynsetExample.synset_id.in_(hypo_exm_ids)).all()
         )
 
-
-
+        # GET HOLONYMY DATA
         holo = MasterRelMeronymyHolonymy.query.filter(MasterRelMeronymyHolonymy.whole_synset_id == synset_id).all()
 
         holo_exm_ids = [hl.part_synset_id for hl in holo]
 
-        # holo_synonyms_id = KonkaniSynsetWords.query.join(KonkaniSynset, KonkaniSynsetWords.synset_id == holo_exm_ids).filter(KonkaniWord.word_id == KonkaniSynsetWords.word_id).all()
+        holo_synonyms = []
 
-        # holo_synonyms = []
-        # for synset in holo_synonyms_id:
-        #     # GET ALL WORDS IN THIS SYNSET
-        #     words_in_synset = (
-        #         KonkaniWord.query.join(KonkaniSynsetWords, KonkaniWord.word_id == KonkaniSynsetWords.word_id).filter(KonkaniSynsetWords.synset_id == synset.synset_id).order_by(KonkaniSynsetWords.word_order).all()
-        #     )
+        for hl in holo:
+            part_synset_id = hl.part_synset_id
 
-        #     for w in words_in_synset:
-        #         if w.word_id != hyper_exm_ids:
-        #             holo_synonyms.append({
-        #                 "id": w.word_id,
-        #                 "word": w.word.replace("_", " "),
-        #                 "sid": synset.synset_id,
-        #             })
-
-        # holo_synonyms = get_synonyms(holo_exm_ids)
+            holo_synonyms.append({
+                "synset_id": part_synset_id,
+                "words": get_words_by_synset(part_synset_id)
+            })
 
         holo_exm = (
             KonkaniSynsetExample.query.filter(KonkaniSynsetExample.synset_id.in_(holo_exm_ids)).all()
         )
 
-
-
+        # GET MERONYMY DATA
         mero = MasterRelMeronymyHolonymy.query.filter(MasterRelMeronymyHolonymy.part_synset_id == synset_id).all()
 
         mero_exm_ids = [mr.whole_synset_id for mr in mero]
 
-        # mero_synonyms_id = KonkaniSynsetWords.query.join(KonkaniSynset, KonkaniSynsetWords.synset_id == mero_exm_ids).filter(KonkaniWord.word_id == KonkaniSynsetWords.word_id).all()
+        mero_synonyms = []
 
-        # mero_synonyms = []
-        # for synset in mero_synonyms_id:
-        #     # GET ALL WORDS IN THIS SYNSET
-        #     words_in_synset = (
-        #         KonkaniWord.query.join(KonkaniSynsetWords, KonkaniWord.word_id == KonkaniSynsetWords.word_id).filter(KonkaniSynsetWords.synset_id == synset.synset_id).order_by(KonkaniSynsetWords.word_order).all()
-        #     )
+        for mr in mero:
+            whole_synset_id = mr.whole_synset_id
 
-        #     for w in words_in_synset:
-        #         if w.word_id != hyper_exm_ids:
-        #             mero_synonyms.append({
-        #                 "id": w.word_id,
-        #                 "word": w.word.replace("_", " "),
-        #                 "sid": synset.synset_id,
-        #             })
-
-        # mero_synonyms = get_synonyms(mero_exm_ids)
+            holo_synonyms.append({
+                "synset_id": whole_synset_id,
+                "words": get_words_by_synset(whole_synset_id)
+            })
 
         mero_exm = (
             KonkaniSynsetExample.query.filter(KonkaniSynsetExample.synset_id.in_(mero_exm_ids)).all()
@@ -226,50 +199,16 @@ def get_semantic_rel(synset_id):
         "hypo_exm": hypo_exm,
         "holo_exm": holo_exm,
         "mero_exm": mero_exm,
-        "hyper_syn": [h for h in hyper_synonyms],
-        # "hypo_syn": [h for h in hyper_synonyms],
-        # "holo_syn": [h for h in holo_synonyms],
-        # "mero_syn": [m for m in mero_synonyms],
+        "hyper_syn": hyper_synonyms,
+        "hypo_syn": hypo_synonyms,
+        "holo_syn": holo_synonyms,
+        "mero_syn": mero_synonyms,
         "hypo": [ho.get_parent_synset() for ho in hypo],
         "holo": [hl.get_part_synset() for hl in holo],
         "mero": [mr.get_whole_synset() for mr in mero]
     })
 
     return collection
-
-
-# IMAGE GENERATION PROCESS
-# LOAD MODEL
-model_id = "stabilityai/stable-diffusion-xl-base-1.0"
-# scheduler = EulerDiscreteScheduler.from_pretrained(model_id, subfolder="scheduler")
-# pipe = DiffusionPipeline.from_pretrained(model_id, torch_dtype=torch.float16, variant="fp16", use_safetensors=True)
-# pipe = pipe.to("cuda")
-
-# model_id = "DeepFloyd/IF-I-XL-v1.0"
-# def load_image_model():
-#     pipe = DiffusionPipeline.from_pretrained(model_id, torch_dtype=torch.float16)
-#     return pipe.to("cuda")
-
-pipe = None
-
-def get_pipe():
-    global pipe
-    if pipe is None:
-        from diffusers import DiffusionPipeline
-        import torch
-
-        pipe = DiffusionPipeline.from_pretrained(
-            model_id,
-            torch_dtype=torch.float16,
-            variant="fp16",
-            use_safetensors=True
-        )
-        pipe.to("cuda")
-        pipe.enable_attention_slicing()
-        pipe.vae.enable_slicing()
-
-    return pipe
-
 
 
 # WEBSITE ROUTES
@@ -347,7 +286,7 @@ def dictionary():
         )
 
         word = word_day.word.replace("_", " ")
-        category = synset.get_category()
+        category = synset.category
         definiton = synset.concept_definition
         example_sent = example.example_content
 
@@ -359,9 +298,7 @@ def dictionary():
             "word": word,
             "category": category,
             "concept_definition": definiton,
-            "example": example_sent,
-
-            "img_url": url_for('routes.generate_img', word_id=word_day.word_id, synset_id=this_synset_id)
+            "example": example_sent
         }
 
     return render_template('view/search.html',
@@ -369,38 +306,23 @@ def dictionary():
                            word_info=word_info)
 
 
-
 # GENERATE IMAGE ROUTE
-@routes.route('/generate_img/<int:word_id>/<int:synset_id>')
-def generate_img(word_id, synset_id):
+@routes.route('/generate_img/<int:word_id>')
+def generate_img(word_id):
+    konk_word = KonkaniWord.query.get_or_404(word_id)
+    word_konk = konk_word.word.replace("_", " ")
+    word_eng = translate_to_english(word_konk)
+    
+    prompt = f"A high-resolution, realistic photograph of {word_eng} on a plain white background. The {word_eng} should be centered, clearly visible, in natural colors and proportions, well-lit, with sharp focus and no additional objects, text, or people in the image. The style should be photorealistic, studio lighting, no blur, no abstract or cartoonish elements."
+    negative_prompt = "blurry, low-resolution, abstract, cartoonish, text, extra objects, people, animals, dark lighting, distorted proportions"
+    
+    image_url = generate_image_from_prompt(prompt, negative_prompt=negative_prompt)
+    print("Image URL:", image_url)
 
-    konk_word = KonkaniWord.query.filter(KonkaniWord.word_id == word_id).first()
-    konk_synset = KonkaniSynset.query.filter(KonkaniSynset.synset_id == synset_id).first()
-    get_word = konk_word.word.replace("_", " ")
-    get_context = konk_synset.concept_definition
-
-    word = ms_translate_konk_eng(get_word)
-    if "Translation Error" in word:
-        word = get_word
-    # context = ms_translate_konk_eng(get_context)
-
-    # prompt = f"A clear and realistic illustration of {word}"
-    prompt = f"A clear, realistic, high-quality photograph of tree"
-
-    print(f"\nImage Prompt = {prompt}\n")
-
-    pipe_instance = get_pipe()
-
-    negative_prompt = "blurry, low quality, distorted, deformed, abstract, cartoon, extra limbs, cropped, out of frame, text, watermark"
-    img = pipe_instance(prompt=prompt, negative_prompt=negative_prompt, height=768, width=768, guidance_scale=7.5, num_inference_steps=15).images[0]
-
-    # img = pipe(prompt, height=384, width=384, guidance_scale=7.0, num_inference_steps=20).images[0]
-
-    img_io = BytesIO()
-    img.save(img_io, format='PNG')
-    img_io.seek(0)
-
-    return send_file(img_io, mimetype="image/png", as_attachment=False)
+    if image_url:
+        return redirect(image_url)
+    else:
+        return "Pixazo API error", 500
 
 
 # PARTICULAR WORD DATA PAGE ROUTE
@@ -419,7 +341,7 @@ def get_word(word_id, synset_id):
         )
 
     word_text = word.word.replace("_", " ")
-    category = synset.get_category()
+    category = synset.category
     definiton = synset.concept_definition
     example_sent = example.example_content
 
@@ -429,33 +351,31 @@ def get_word(word_id, synset_id):
     # GET SEMANTIC RELATIONS
     relations = get_semantic_rel(synset_id)
 
-
     # TRANSLATE WORD DATA
     translated_eng_data = {
-        "eng_word": ms_translate_konk_eng(word_text),
-        "gloss": ms_translate_konk_eng(definiton),
-        "usage": ms_translate_konk_eng(example_sent)
+        "eng_word": translate_text(word_text, "en"),
+        "gloss": translate_text(definiton, "en"),
+        "usage": translate_text(example_sent, "en")
     }
 
     translated_hi_data = {
-        "hindi_word": ms_translate_konk_hindi(word_text),
-        "gloss": ms_translate_konk_hindi(definiton),
-        "usage": ms_translate_konk_hindi(example_sent)
+        "hindi_word": translate_text(word_text, "hi"),
+        "gloss": translate_text(definiton, "hi"),
+        "usage": translate_text(example_sent, "hi")
     }
 
     translated_mr_data = {
-        "marathi_word": ms_translate_konk_marathi(word_text),
-        "gloss": ms_translate_konk_marathi(definiton),
-        "usage": ms_translate_konk_marathi(example_sent)
+        "marathi_word": translate_text(word_text, "mr"),
+        "gloss": translate_text(definiton, "mr"),
+        "usage": translate_text(example_sent, "mr")
     }
 
     word_info = {
         "word": word_text,
         "category": category,
         "concept_definition": definiton,
-        "example": example_sent,
-        "img_url": url_for('routes.generate_img', word_id=word_id, synset_id=synset_id)
-        }
+        "example": example_sent
+    }
 
     return render_template('view/word.html',
                            word=word.word_id,
@@ -466,7 +386,8 @@ def get_word(word_id, synset_id):
                            hindi_data=translated_hi_data,
                            marathi_data=translated_mr_data,
                            synonyms=synonyms,
-                           relations=relations)
+                           relations=relations
+                        )
 
 
 # INTRODUCTION PAGE ROUTE

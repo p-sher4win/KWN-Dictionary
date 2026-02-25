@@ -57,8 +57,8 @@
 
                 <!-- DISPLAY IMAGE -->
                 <div class="text-center mb-2 img-src">
-                    <img src="{{ word_info.img_url }}" width="200" class="rounded" alt="word-img">
-                    <p class="fw-lighter text-body-tertiary small-font">hf-model</p>
+                    <img src="{{ url_for('routes.generate_img', word_id=word_info.word_id) }}" width="200" alt="word-img">
+                    <p class="fw-lighter text-body-tertiary small-font">image by pixazo</p>
                 </div>
 
                 <div class="my-2">

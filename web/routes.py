@@ -2,17 +2,12 @@ from flask import Blueprint, render_template, flash, redirect,url_for
 from . import db
 from .mast_models import *
 from .webforms import SearchWordForm
-from googletrans import Translator
-import requests
-from config import Config
-
-
-# UNOFFICIAL GOOGLE TRANSLATE INSTANCE
-translator = Translator()
 
 # GOOGLE TRANSLATE FUNCTION (UNOFFICIAL)
 def translate_text(text, target_lang):
     try:
+        from googletrans import Translator
+        translator = Translator()
         result = translator.translate(text, dest=target_lang)
         return result.text
     except Exception as e:
@@ -21,6 +16,8 @@ def translate_text(text, target_lang):
 
 def translate_to_english(text):
     try:
+        from googletrans import Translator
+        translator = Translator()
         result = translator.translate(text, dest="en")
         return result.text
     except Exception as e:
@@ -28,10 +25,16 @@ def translate_to_english(text):
         return text
 
 
-# IMAGE GENERATION
-PIXAZO_API_KEY = Config.PIXAZO_API_KEY
-
+# PIXAZO IMAGE GENERATION
 def generate_image_from_prompt(prompt, negative_prompt=None, width=1024, height=1024, num_steps=20, guidance_scale=5, seed=None):
+    import requests
+    from config import Config
+
+    PIXAZO_API_KEY = Config.PIXAZO_API_KEY
+
+    if not PIXAZO_API_KEY:
+        return None
+
     url = "https://gateway.pixazo.ai/getImage/v1/getSDXLImage"
     headers = {
         "Content-Type": "application/json",
